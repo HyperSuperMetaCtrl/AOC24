@@ -4,27 +4,27 @@
   (uiop:read-file-lines *input-path*))
 
 (defun split-line (line)
-  (cl-utilities:split-sequence #\Space line :remove-empty-subseqs t))
+  (mapcar #'parse-integer
+	  (cl-utilities:split-sequence #\Space line :remove-empty-subseqs t)))
 
-(defun separate (input a b)
-  (cond ((eq input nil) (list a b))
-    (t (separate (cdr input) (push (parse-integer (caar input)) a) (push (parse-integer (cadar input)) b)))))
+(defun parse-input ()
+  (let ((lines (get-input)))
+    (loop for line in lines
+	  for (x y) = (split-line line)
+	  collect x into xs
+	  collect y into ys
+	  finally (return (list xs ys)))))
 
-(defun split (input output)
-  (cond ((eq input nil) output)
-    (t (split (cdr input) (append output (list (split-line (car input))))))))
+(defun sort-lists (lists)
+  (mapcar (lambda (lst) (sort lst #'<)) lists))
 
-(defun parse-input () 
-  (separate (split (get-input) ()) () ()))
- 
-(defun sort-a-b (list-arg)
-  (list (sort (first list-arg) #'<) (sort (second list-arg) #'<)))
+(defun calculate-differences (sorted-lists)
+  (let ((list1 (first sorted-lists))
+	(list2 (second sorted-lists)))
+    (loop for x in list1
+	  for y in list2
+	  sum (abs (- x y)))))
 
-(defun diffs (arg1 arg2 res)
-  (cond ((eq arg1 nil) res)
-    (t (diffs (cdr arg1) (cdr arg2) (+ res (abs (- (car arg1) (car arg2))))))))
-
-(let* ((sorted-input (sort-a-b (parse-input)))
-       (a (first sorted-input))
-       (b (second sorted-input)))
-  (print (diffs a b 0)))
+(let* ((parsed-input (parse-input))
+       (sorted-input (sort-lists parsed-input)))
+  (format t "Sum of differences: ~A~%" (calculate-differences sorted-input)))
