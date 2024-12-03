@@ -5,7 +5,7 @@
 (defun part1 (input)
   (let ((sum 0))
     (ppcre:do-register-groups ((#'parse-integer a b)) ("mul\\((\\d+),(\\d+)\\)" input)
-      (setf sum (+ sum (* a b))))
+      (incf sum (* a b)))
     sum))
 
 (defun part2 (input)
@@ -18,7 +18,7 @@
       (when (and (eq state 'disabled) (string= enable "do()")
 		 (setf state 'enabled)))
       (when (and (eq state 'enabled) a b)
-	         (setf sum (+ sum (* a b)))))
+	(incf sum (* a b))))
     sum))
 
 (format t "Part1: ~d~%" (part1 *input*))
